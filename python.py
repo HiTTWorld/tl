@@ -158,3 +158,42 @@ elif page == "Scatter Plot":
     ).interactive()
 
     st.altair_chart(box_plot, use_container_width=True)
+    
+    # Prepare data for dumbbell plot
+    dumbbell_data = data.groupby(['movieNm']).agg(
+        start_date=pd.NamedAgg(column='openDt', aggfunc='min'),
+        end_date=pd.NamedAgg(column='openDt', aggfunc='max')
+    ).reset_index()
+
+    dumbbell_chart = alt.Chart(dumbbell_data).mark_line().encode(
+        x=alt.X('start_date:T', title='Start Date'),
+        x2=alt.X2('end_date:T', title='End Date'),
+        y=alt.Y('movieNm:N', title='Movie Name'),
+        color=alt.Color('movieNm:N', legend=None)
+    ).properties(
+        width=800,
+        height=600,
+        title='Movie Screening Periods'
+    ).interactive()
+
+    points = alt.Chart(dumbbell_data).mark_circle(size=100).encode(
+        x=alt.X('start_date:T', title='Start Date'),
+        y=alt.Y('movieNm:N', title='Movie Name'),
+        tooltip=['movieNm:N', 'start_date:T', 'end_date:T'],
+        color=alt.Color('movieNm:N', legend=None)
+    ).properties(
+        width=800,
+        height=600
+    )
+
+    points2 = alt.Chart(dumbbell_data).mark_circle(size=100).encode(
+        x=alt.X('end_date:T', title='End Date'),
+        y=alt.Y('movieNm:N', title='Movie Name'),
+        tooltip=['movieNm:N', 'start_date:T', 'end_date:T'],
+        color=alt.Color('movieNm:N', legend=None)
+    ).properties(
+        width=800,
+        height=600
+    )
+
+    st.altair_chart(dumbbell_chart + points + points2, use_container_width=True)
