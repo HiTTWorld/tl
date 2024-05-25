@@ -7,12 +7,22 @@ from datetime import timedelta
 file_path = 'Moive_Boxoffice.csv'
 data = pd.read_csv(file_path)
 
+# Ensure all date columns are parsed correctly
+data['openDt'] = pd.to_datetime(data['openDt'], errors='coerce', format='%Y-%m-%d %H:%M:%S')
+data['targetDt'] = pd.to_datetime(data['targetDt'], errors='coerce', format='%Y%m%d')
+
+# Create a new column for the period
+data['period'] = pd.cut(data['openDt'].dt.year,
+                        bins=[2016, 2017, 2021, 2024],
+                        labels=['2017 Period', '2022 Period', '2023 Period'],
+                        right=False)
+
 # Mapping of movie names to be used in the multiselect
 movie_names = ['범죄도시', '범죄도시2', '범죄도시3']
 
 # Sidebar navigation
 st.sidebar.header("Navigation")
-page = st.sidebar.radio("Go to", ["Main Dashboard", "Demo: Survey", "Demo: User management"])
+page = st.sidebar.radio("Go to", ["Main Dashboard", "Demo: Survey", "Demo: User management", "Scatter Plot"])
 
 if page == "Main Dashboard":
     # Set the title of the main page
@@ -112,3 +122,20 @@ elif page == "Demo: User management":
     st.title("User Management Data")
     st.subheader("Preview of User Management Data")
     st.write(data.head(10))  # Display first 10 rows of the data
+
+elif page == "Scatter Plot":
+    st.title("Scatter Plot of Show Count vs Screen Count")
+    
+    # Create the scatter plot
+    scatter_chart = alt.Chart(data).mark_circle(size=60).encode(
+        x=alt.X('scrnCnt:Q', title='Screen Count'),
+        y=alt.Y('showCnt:Q', title='Show Count'),
+        color=alt.Color('period:N', title='Period'),
+        tooltip=['movieNm:N', 'scrnCnt:Q', 'showCnt:Q', 'openDt:T']
+    ).properties(
+        width=800,
+        height=600,
+        title='Show Count vs Screen Count with Period Coloring'
+    ).interactive()
+
+    st.altair_chart(scatter_chart, use_container_width=True)
