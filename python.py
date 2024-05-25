@@ -11,11 +11,15 @@ data = pd.read_csv(file_path)
 data['openDt'] = pd.to_datetime(data['openDt'], errors='coerce', format='%Y-%m-%d %H:%M:%S')
 data['targetDt'] = pd.to_datetime(data['targetDt'], errors='coerce', format='%Y%m%d')
 
-# Create a new column for the period
-data['period'] = pd.cut(data['openDt'].dt.year,
-                        bins=[2016, 2017, 2021, 2024],
-                        labels=['2017 Period', '2022 Period', '2023 Period'],
-                        right=False)
+# Extract year from openDt for coloring
+data['year'] = data['openDt'].dt.year
+
+# Aggregate the data to sum showCnt and scrnCnt for each movie
+aggregated_data = data.groupby(['movieNm', 'year'], as_index=False).agg({
+    'showCnt': 'sum',
+    'scrnCnt': 'sum',
+    'openDt': 'first'  # Keep the first openDt for reference
+})
 
 # Mapping of movie names to be used in the multiselect
 movie_names = ['범죄도시', '범죄도시2', '범죄도시3']
@@ -127,15 +131,15 @@ elif page == "Scatter Plot":
     st.title("Scatter Plot of Show Count vs Screen Count")
     
     # Create the scatter plot
-    scatter_chart = alt.Chart(data).mark_circle(size=60).encode(
+    scatter_chart = alt.Chart(aggregated_data).mark_circle(size=60).encode(
         x=alt.X('scrnCnt:Q', title='Screen Count'),
         y=alt.Y('showCnt:Q', title='Show Count'),
-        color=alt.Color('period:N', title='Period'),
+        color=alt.Color('year:N', title='Year'),
         tooltip=['movieNm:N', 'scrnCnt:Q', 'showCnt:Q', 'openDt:T']
     ).properties(
         width=800,
         height=600,
-        title='Show Count vs Screen Count with Period Coloring'
+        title='Show Count vs Screen Count with Year Coloring'
     ).interactive()
 
     st.altair_chart(scatter_chart, use_container_width=True)
