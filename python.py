@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 # pip install openpyxl
-import openpyxl
 
 # Set the title of the main page
 st.title("Movie Project")
