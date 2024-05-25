@@ -31,13 +31,13 @@ selected_data = data[data['movieNm'].isin(selected_movies)]
 
 # Get the release dates of the selected movies
 selected_open_dates = selected_data.drop_duplicates(subset=['movieNm'])[['movieNm', 'openDt']]
-selected_open_dates['openDt'] = pd.to_datetime(selected_open_dates['openDt'], format='%Y-%m-%d %H:%M:%S')
+selected_open_dates['openDt'] = pd.to_datetime(selected_open_dates['openDt'], errors='coerce')
 
 # Identify the date range for competing movies (2 weeks before and after release date)
 competing_date_ranges = selected_open_dates.apply(lambda row: pd.date_range(start=row['openDt'] - timedelta(days=14), end=row['openDt'] + timedelta(days=14)), axis=1)
 
 # Filter data to get competing movies
-data['openDt'] = pd.to_datetime(data['openDt'], format='%Y-%m-%d %H:%M:%S')
+data['openDt'] = pd.to_datetime(data['openDt'], errors='coerce')
 is_competing_movie = data.apply(lambda row: any(row['openDt'] in date_range for date_range in competing_date_ranges), axis=1)
 competing_data = data[is_competing_movie]
 
@@ -84,7 +84,7 @@ with col4:
     st.metric(label="Total Show Count", value=format_number(kpi_summary[kpi_summary['Metric'] == 'showCnt']['Value'].values[0]))
 
 # Convert targetDt to datetime for plotting
-plot_data['targetDt'] = pd.to_datetime(plot_data['targetDt'], format='%Y-%m-%d %H:%M:%S')
+plot_data['targetDt'] = pd.to_datetime(plot_data['targetDt'], errors='coerce')
 
 # Plotting the line chart using Altair
 line_chart = alt.Chart(plot_data).mark_line(point=True).encode(
