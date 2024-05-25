@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt # 
+import altair as alt
 
 # Load data
 file_path = 'Moive_Boxoffice.csv'
@@ -69,14 +69,14 @@ with col4:
 # Convert targetDt to datetime
 filtered_data['targetDt'] = pd.to_datetime(filtered_data['targetDt'], format='%Y%m%d')
 
-# Plotting the line chart
-fig, ax = plt.subplots()
-for name, group in filtered_data.groupby('movieNm'):
-    ax.plot(group['targetDt'], group['audiCnt'], marker='o', linestyle='-', label=name)
+# Plotting the line chart using Altair
+line_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
+    x='targetDt:T',
+    y='audiCnt:Q',
+    color='movieNm:N',
+    tooltip=['targetDt:T', 'audiCnt:Q', 'movieNm:N']
+).properties(
+    title='Audience Count Over Time'
+).interactive()
 
-ax.set_xlabel('Date')
-ax.set_ylabel('Audience Count')
-ax.set_title('Audience Count Over Time')
-ax.legend()
-
-st.pyplot(fig)
+st.altair_chart(line_chart, use_container_width=True)
