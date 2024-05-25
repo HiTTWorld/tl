@@ -1,6 +1,9 @@
 import pandas as pd
 import streamlit as st
-# pip install openpyxl
+
+# Load data
+file_path = 'Moive_Boxoffice.csv'
+data = pd.read_csv(file_path)
 
 # Set the title of the main page
 st.title("Movie Project")
@@ -8,10 +11,8 @@ st.title("Movie Project")
 # Add items to the sidebar
 with st.sidebar:
     st.header("Getting started")
-    st.write("Demo: Survey")
-    st.write("Demo: User management")
-   
-data = pd.read_csv('Moive_Boxoffice.csv')  
+    st.write('Demo: Survey')
+    st.write('Demo: User management')
 
 # Filter data based on MovieCd
 selected_movies = st.sidebar.multiselect(
