@@ -5,12 +5,8 @@ import streamlit as st
 file_path = 'Moive_Boxoffice.csv'
 data = pd.read_csv(file_path)
 
-# Mapping of movie codes to names
-movie_mapping = {
-    '20226411': '범죄도시',
-    '20204548': '범죄도시2',
-    '20172742': '범죄도시3'
-}
+# Mapping of movie names to be used in the multiselect
+movie_names = ['범죄도시', '범죄도시2', '범죄도시3']
 
 # Set the title of the main page
 st.title("Movie Project")
@@ -21,18 +17,14 @@ with st.sidebar:
     st.write('Demo: Survey')
     st.write('Demo: User management')
 
-# Filter data based on specified MovieCd
-available_movie_codes = list(movie_mapping.keys())
-
-# Create a multiselect dropdown with specific movie codes and names
+# Create a multiselect dropdown with specific movie names
 selected_movies = st.sidebar.multiselect(
-    'Select Movie Codes',
-    options=available_movie_codes,
-    format_func=lambda x: movie_mapping[x],
-    default=available_movie_codes
+    'Select Movie Names',
+    options=movie_names,
+    default=movie_names
 )
 
-filtered_data = data[data['movieCd'].isin(selected_movies)]
+filtered_data = data[data['movieNm'].isin(selected_movies)]
 
 # Extract relevant columns for KPI chart
 kpi_data = filtered_data[['salesAmt', 'audiCnt', 'scrnCnt', 'showCnt']]
