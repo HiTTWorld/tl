@@ -162,38 +162,32 @@ elif page == "Scatter Plot":
     # Prepare data for dumbbell plot
     dumbbell_data = data.groupby(['movieNm']).agg(
         start_date=pd.NamedAgg(column='openDt', aggfunc='min'),
-        end_date=pd.NamedAgg(column='openDt', aggfunc='max')
+        end_date=pd.NamedAgg(column='openDt', aggfunc='max'),
+        duration=pd.NamedAgg(column='openDt', aggfunc=lambda x: (x.max() - x.min()).days)
     ).reset_index()
 
     dumbbell_chart = alt.Chart(dumbbell_data).mark_line().encode(
-        x=alt.X('start_date:T', title='Start Date'),
-        x2=alt.X2('end_date:T', title='End Date'),
+        x=alt.X('duration:Q', title='Duration (Days)'),
         y=alt.Y('movieNm:N', title='Movie Name'),
         color=alt.Color('movieNm:N', legend=None)
     ).properties(
         width=800,
         height=600,
-        title='Movie Screening Periods'
+        title='Movie Screening Durations'
     ).interactive()
 
-    points = alt.Chart(dumbbell_data).mark_circle(size=100).encode(
+    points_start = alt.Chart(dumbbell_data).mark_circle(size=100).encode(
         x=alt.X('start_date:T', title='Start Date'),
         y=alt.Y('movieNm:N', title='Movie Name'),
-        tooltip=['movieNm:N', 'start_date:T', 'end_date:T'],
-        color=alt.Color('movieNm:N', legend=None)
-    ).properties(
-        width=800,
-        height=600
+        tooltip=['movieNm:N', 'start_date:T', 'end_date:T', 'duration:Q'],
+        color=alt.value('blue')
     )
 
-    points2 = alt.Chart(dumbbell_data).mark_circle(size=100).encode(
+    points_end = alt.Chart(dumbbell_data).mark_circle(size=100).encode(
         x=alt.X('end_date:T', title='End Date'),
         y=alt.Y('movieNm:N', title='Movie Name'),
-        tooltip=['movieNm:N', 'start_date:T', 'end_date:T'],
-        color=alt.Color('movieNm:N', legend=None)
-    ).properties(
-        width=800,
-        height=600
+        tooltip=['movieNm:N', 'start_date:T', 'end_date:T', 'duration:Q'],
+        color=alt.value('red')
     )
 
-    st.altair_chart(dumbbell_chart + points + points2, use_container_width=True)
+    st.altair_chart(dumbbell_chart + points_start + points_end, use_container_width=True)
