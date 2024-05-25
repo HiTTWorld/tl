@@ -14,10 +14,11 @@ data['targetDt'] = pd.to_datetime(data['targetDt'], errors='coerce', format='%Y%
 # Extract year from openDt for coloring
 data['year'] = data['openDt'].dt.year
 
-# Aggregate the data to sum showCnt and scrnCnt for each movie
+# Aggregate the data to sum showCnt, scrnCnt, and audiCnt for each movie
 aggregated_data = data.groupby(['movieNm', 'year'], as_index=False).agg({
     'showCnt': 'sum',
     'scrnCnt': 'sum',
+    'audiCnt': 'sum',
     'openDt': 'first'  # Keep the first openDt for reference
 })
 
@@ -143,3 +144,17 @@ elif page == "Scatter Plot":
     ).interactive()
 
     st.altair_chart(scatter_chart, use_container_width=True)
+    
+    # Create the box plot
+    box_plot = alt.Chart(aggregated_data).mark_boxplot(extent='min-max').encode(
+        x=alt.X('year:O', title='Year'),
+        y=alt.Y('audiCnt:Q', title='Audience Count'),
+        color=alt.Color('year:N', title='Year'),
+        tooltip=['movieNm:N', 'audiCnt:Q', 'year:O']
+    ).properties(
+        width=800,
+        height=600,
+        title='Audience Count by Year'
+    ).interactive()
+
+    st.altair_chart(box_plot, use_container_width=True)
