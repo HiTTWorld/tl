@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import matplotlib.pyplot as plt
 
 # Load data
 file_path = 'Moive_Boxoffice.csv'
@@ -43,6 +44,18 @@ st.title("KPI Dashboard")
 # Display KPI metrics in card format
 st.subheader("KPI Summary")
 
+# Define CSS for reducing font size
+st.markdown(
+    """
+    <style>
+    .metric-container .metric-value {
+        font-size: 1.5em;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric(label="Total Sales Amount", value=format_number(kpi_summary[kpi_summary['Metric'] == 'salesAmt']['Value'].values[0]))
@@ -53,4 +66,17 @@ with col3:
 with col4:
     st.metric(label="Total Show Count", value=format_number(kpi_summary[kpi_summary['Metric'] == 'showCnt']['Value'].values[0]))
 
-# You can add more styling or features as needed
+# Convert targetDt to datetime
+filtered_data['targetDt'] = pd.to_datetime(filtered_data['targetDt'], format='%Y%m%d')
+
+# Plotting the line chart
+fig, ax = plt.subplots()
+for name, group in filtered_data.groupby('movieNm'):
+    ax.plot(group['targetDt'], group['audiCnt'], marker='o', linestyle='-', label=name)
+
+ax.set_xlabel('Date')
+ax.set_ylabel('Audience Count')
+ax.set_title('Audience Count Over Time')
+ax.legend()
+
+st.pyplot(fig)
