@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import altair as alt
+from datetime import timedelta
 
 # Load data
 file_path = 'Moive_Boxoffice.csv'
@@ -25,10 +26,26 @@ selected_movies = st.sidebar.multiselect(
     default=movie_names
 )
 
-filtered_data = data[data['movieNm'].isin(selected_movies)]
+# Filter data to get the selected movies
+selected_data = data[data['movieNm'].isin(selected_movies)]
+
+# Get the release dates of the selected movies
+selected_open_dates = selected_data.drop_duplicates(subset=['movieNm'])[['movieNm', 'openDt']]
+selected_open_dates['openDt'] = pd.to_datetime(selected_open_dates['openDt'], format='%Y%m%d')
+
+# Identify the date range for competing movies (2 weeks before and after release date)
+competing_date_ranges = selected_open_dates.apply(lambda row: pd.date_range(start=row['openDt'] - timedelta(days=14), end=row['openDt'] + timedelta(days=14)), axis=1)
+
+# Filter data to get competing movies
+data['openDt'] = pd.to_datetime(data['openDt'], format='%Y%m%d')
+is_competing_movie = data.apply(lambda row: any(row['openDt'] in date_range for date_range in competing_date_ranges), axis=1)
+competing_data = data[is_competing_movie]
+
+# Merge selected movies and competing movies
+plot_data = pd.concat([selected_data, competing_data]).drop_duplicates()
 
 # Extract relevant columns for KPI chart
-kpi_data = filtered_data[['salesAmt', 'audiCnt', 'scrnCnt', 'showCnt']]
+kpi_data = selected_data[['salesAmt', 'audiCnt', 'scrnCnt', 'showCnt']]
 
 # Summarize the data to create meaningful KPIs
 kpi_summary = kpi_data.sum().reset_index()
@@ -66,11 +83,11 @@ with col3:
 with col4:
     st.metric(label="Total Show Count", value=format_number(kpi_summary[kpi_summary['Metric'] == 'showCnt']['Value'].values[0]))
 
-# Convert targetDt to datetime
-filtered_data['targetDt'] = pd.to_datetime(filtered_data['targetDt'], format='%Y%m%d')
+# Convert targetDt to datetime for plotting
+plot_data['targetDt'] = pd.to_datetime(plot_data['targetDt'], format='%Y%m%d')
 
 # Plotting the line chart using Altair
-line_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
+line_chart = alt.Chart(plot_data).mark_line(point=True).encode(
     x='targetDt:T',
     y='audiCnt:Q',
     color='movieNm:N',
