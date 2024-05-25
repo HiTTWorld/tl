@@ -13,7 +13,17 @@ with st.sidebar:
    
 data = pd.read_csv('Moive_Boxoffice.csv')  
 
-kpi_data = data[['salesAmt', 'audiCnt', 'scrnCnt', 'showCnt']]
+# Filter data based on MovieCd
+selected_movies = st.sidebar.multiselect(
+    'Select Movie Codes',
+    options=data['movieCd'].unique(),
+    default=['20226411', '20204548', '20172742']
+)
+
+filtered_data = data[data['movieCd'].isin(selected_movies)]
+
+# Extract relevant columns for KPI chart
+kpi_data = filtered_data[['salesAmt', 'audiCnt', 'scrnCnt', 'showCnt']]
 
 # Summarize the data to create meaningful KPIs
 kpi_summary = kpi_data.sum().reset_index()
