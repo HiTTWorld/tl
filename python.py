@@ -12,7 +12,5 @@ with st.sidebar:
     st.write("Demo: Survey")
     st.write("Demo: User management")
    
-# Load data
-file_path = 'Moive_Boxoffice.xlsx'
-data = pd.read_excel(file_path)
+df = pd.read_csv('Moive_Boxoffice.csv')
 
