@@ -5,6 +5,13 @@ import streamlit as st
 file_path = 'Moive_Boxoffice.csv'
 data = pd.read_csv(file_path)
 
+# Mapping of movie codes to names
+movie_mapping = {
+    '20226411': '범죄도시',
+    '20204548': '범죄도시2',
+    '20172742': '범죄도시3'
+}
+
 # Set the title of the main page
 st.title("Movie Project")
 
@@ -14,18 +21,15 @@ with st.sidebar:
     st.write('Demo: Survey')
     st.write('Demo: User management')
 
-# Ensure the default movie codes are present in the data
-default_movie_codes = ['20226411', '20204548', '20172742']
-available_movie_codes = data['movieCd'].unique()
+# Filter data based on specified MovieCd
+available_movie_codes = list(movie_mapping.keys())
 
-# Only use default movie codes that are present in the available options
-valid_default_movie_codes = [code for code in default_movie_codes if code in available_movie_codes]
-
-# Filter data based on MovieCd
+# Create a multiselect dropdown with specific movie codes and names
 selected_movies = st.sidebar.multiselect(
     'Select Movie Codes',
     options=available_movie_codes,
-    default=valid_default_movie_codes
+    format_func=lambda x: movie_mapping[x],
+    default=available_movie_codes
 )
 
 filtered_data = data[data['movieCd'].isin(selected_movies)]
