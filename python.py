@@ -12,5 +12,5 @@ with st.sidebar:
     st.write("Demo: Survey")
     st.write("Demo: User management")
    
-df = pd.read_csv('Moive_Boxoffice.csv')
+df = pd.read_csv('Moive_Boxoffice.csv') # 
 
