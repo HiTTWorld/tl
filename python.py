@@ -14,11 +14,18 @@ with st.sidebar:
     st.write('Demo: Survey')
     st.write('Demo: User management')
 
+# Ensure the default movie codes are present in the data
+default_movie_codes = ['20226411', '20204548', '20172742']
+available_movie_codes = data['movieCd'].unique()
+
+# Only use default movie codes that are present in the available options
+valid_default_movie_codes = [code for code in default_movie_codes if code in available_movie_codes]
+
 # Filter data based on MovieCd
 selected_movies = st.sidebar.multiselect(
     'Select Movie Codes',
-    options=data['movieCd'].unique(),
-    default=['20226411', '20204548', '20172742']
+    options=available_movie_codes,
+    default=valid_default_movie_codes
 )
 
 filtered_data = data[data['movieCd'].isin(selected_movies)]
