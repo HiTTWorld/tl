@@ -4,7 +4,7 @@ import altair as alt
 from datetime import timedelta
 
 # Load data
-file_path = 'Moive_Boxoffice.csv'
+file_path = 'movie.csv'
 data = pd.read_csv(file_path)
 
 # Ensure all date columns are parsed correctly
